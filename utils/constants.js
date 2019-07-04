@@ -7,6 +7,7 @@ module.exports = Object.freeze({
     something_wrong : 'Sorry. Something went wrong!',
     url_not_exist : 'Url does not exist',
     success : 'Success!',
+    params_missing : 'There seems to be a problem with the parameters',
 
     //User Model
     email_exists : 'Email already exists',

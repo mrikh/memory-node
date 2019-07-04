@@ -14,19 +14,27 @@ router.post('/users/signUp', async (req, res, next) => {
     }
 })
 
-router.get('/users/checkUsername/:username', async (req, res, next) => {
+router.get('/users/checkInfo', async (req, res, next) => {
+
+    const username = req.query.username
+
     try{
-        const user = await User.findOne({username : req.params.username})
-        if (user){
-            const error = new Error(constants.username_exists)
+        if (username){
+            const user = await User.findOne({username})
+            if (user){
+                const error = new Error(constants.username_exists)
+                error.statusCode = 422
+                throw error
+            }
+            res.send({code : 200, message : constants.success})
+        }else{
+            const error = new Error(constants.params_missing)
             error.statusCode = 422
             throw error
         }
-        res.send({code : 200, message : constants.success})
     }catch(error){
         next(error)
     }
 })
-
 
 module.exports = router
