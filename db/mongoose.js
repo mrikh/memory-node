@@ -1,7 +1,12 @@
 const mongoose = require('mongoose')
 
+const debug = process.env.port === 3000
+
 const retryConnect = () => {
-    mongoose.connect('mongodb://127.0.0.1:27017/Memory', {
+
+    const url = debug ? 'mongodb://127.0.0.1:27017/Memory' : process.env.MONGOLAB_URI
+
+    mongoose.connect(url, {
         useNewUrlParser : true,
         useCreateIndex : true,
         useFindAndModify : false
