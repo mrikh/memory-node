@@ -14,7 +14,7 @@ router.post('/users/signUp', async (req, res, next) => {
     }
 })
 
-router.get('/users/checkInfo', async (req, res) => {
+router.get('/users/checkInfo', async (req, res, next) => {
 
     const username = req.query.username
 
