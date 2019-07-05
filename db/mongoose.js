@@ -1,19 +1,14 @@
 const mongoose = require('mongoose')
 
-const debug = process.env.PORT === 3000
+const url = process.env.PORT ? process.env.MONGODB_URI : 'mongodb://127.0.0.1:27017/Memory'
 
-const retryConnect = () => {
+mongoose.connect(url, {
+    useNewUrlParser : true,
+    useCreateIndex : true,
+    useFindAndModify : false
+}, (error) => {
+    if (error){
+        console.log('Connection Error: ' + error)
+    }
+})
 
-    const url = debug ? 'mongodb://127.0.0.1:27017/Memory' : process.env.MONGODB_URI
-
-    mongoose.connect(url, {
-        useNewUrlParser : true,
-        useCreateIndex : true,
-        useFindAndModify : false
-    }, (error) => {
-        if (error){
-            console.log('Connection Error: ' + error)
-            setTimeout(retryConnect, 5000)
-        }
-    })
-}

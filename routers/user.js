@@ -14,23 +14,18 @@ router.post('/users/signUp', async (req, res, next) => {
     }
 })
 
-router.get('/users/checkInfo', async (req, res, next) => {
+router.get('/users/checkInfo', async (req, res) => {
 
     const username = req.query.username
 
     try{
-        console.log(username)
         if (username){
-            console.log('1')
             const user = await User.findOne({username})
-            console.log('2')
             if (user){
-                console.log('3')
                 const error = new Error(constants.username_exists)
                 error.statusCode = 422
                 throw error
             }
-            console.log('4')
             res.send({code : 200, message : constants.success})
         }else{
             const error = new Error(constants.params_missing)
