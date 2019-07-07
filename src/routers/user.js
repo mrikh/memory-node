@@ -2,6 +2,7 @@ const express = require('express')
 const User = require('../models/user')
 const constants = require('../utils/constants')
 const {sendVerificationMail} = require('../emails/account')
+const auth = require('../middleware/auth')
 
 const router = new express.Router()
 
@@ -34,6 +35,31 @@ router.get('/users/checkInfo', async (req, res, next) => {
             error.statusCode = 422
             throw error
         }
+    }catch(error){
+        next(error)
+    }
+})
+
+router.patch('/users/update', auth, async (req, res, next) => {
+
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['name', 'emailVerified', 'profilePhoto']
+
+    const isValid = updates.every((update) => allowedUpdates.includes(update))
+
+    try{
+        if (!isValid){
+            const error = new Error(constants.invalid_updates)
+            error.statusCode = 400
+            throw error
+        }
+
+        const user = req.user
+        updates.forEach((update) => {
+            user[update] = req.body[update]
+        })
+        await user.save()
+        res.send({code : 200, message : constants.success, data : user})
     }catch(error){
         next(error)
     }
