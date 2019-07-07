@@ -65,4 +65,30 @@ router.patch('/users/update', auth, async (req, res, next) => {
     }
 })
 
+router.post('/users/login', async (req, res, next) => {
+    try{
+        const params = req.body
+        if (!params.email || !params.password){
+            const error = new Error(constants.params_missing)
+            error.statusCode = 422
+            throw error
+        }
+
+        const user = await User.findOne({email})
+        const isMatch = await bcrypt.compare(params.password, user.password)
+
+        if (isMatch){
+            const token = await user.generateAuthToken()
+            return res.send({code : 200, message : constants.success, data : {user, token}})
+        }else{
+            const error = new Error(constants.params_missing)
+            error.statusCode = 404
+            throw error
+        }
+
+    }catch(error){
+        next(error)
+    }
+})
+
 module.exports = router
