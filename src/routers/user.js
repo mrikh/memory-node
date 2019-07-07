@@ -3,6 +3,7 @@ const User = require('../models/user')
 const constants = require('../utils/constants')
 const {sendVerificationMail} = require('../emails/account')
 const auth = require('../middleware/auth')
+const bcrypt = require('bcrypt')
 
 const router = new express.Router()
 
@@ -74,7 +75,7 @@ router.post('/users/login', async (req, res, next) => {
             throw error
         }
 
-        const user = await User.findOne({email})
+        const user = await User.findOne({email : params.email})
         const isMatch = await bcrypt.compare(params.password, user.password)
 
         if (isMatch){
