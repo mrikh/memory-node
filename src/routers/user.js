@@ -10,7 +10,7 @@ router.post('/users/signUp', async (req, res, next) => {
         const user = new User(req.body)
         const token = await user.generateAuthToken()
         sendVerificationMail(user.email, user.name)
-        res.send({code : 200, message : constants.success, data : {user, token}})
+        res.send({code : 200, message : constants.success_signup, data : {user, token}})
     }catch (error){
         next(error)
     }

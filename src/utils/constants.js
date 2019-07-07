@@ -3,7 +3,8 @@ module.exports = Object.freeze({
     //general
     something_wrong : 'Sorry. Something went wrong!',
     url_not_exist : 'Url does not exist',
-    success : 'We have created your account. Please verify your account via the email you received to access some of the features. Please check your spam folder if you do not see it in your inbox.',
+    success : 'Success!',
+    success_signup : 'We have created your account. Please verify your account via the email you received to access some of the features. Please check your spam folder if you do not see it in your inbox.',
     params_missing : 'There seems to be a problem with the parameters',
 
     //User Model
