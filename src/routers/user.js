@@ -8,7 +8,6 @@ const router = new express.Router()
 
 router.post('/users/signUp', async (req, res, next) => {
     try{
-        console.log(req)
         const user = new User(req.body)
         const token = await user.generateAuthToken()
         sendVerificationMail(user.email, user.name)
