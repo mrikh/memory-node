@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema({
     token : {
         type : String,
         required : true
+    },
+    emailVerified :{
+        type : Boolean,
+        default: false
     }
 },{
     timestamps : true
@@ -60,7 +64,7 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.generateAuthToken = async function (){
 
     try{
-        const token = jwt.sign({_id : this._id.toString()}, constants.auth_key)
+        const token = jwt.sign({_id : this._id.toString()}, process.env.JWT_SECRET)
         this.token = token
         await this.save()
         return token

@@ -1,6 +1,7 @@
 const express = require('express')
 const User = require('../models/user')
 const constants = require('../utils/constants')
+const {sendVerificationMail} = require('../emails/account')
 
 const router = new express.Router()
 
@@ -8,6 +9,7 @@ router.post('/users/signUp', async (req, res, next) => {
     try{
         const user = new User(req.body)
         const token = await user.generateAuthToken()
+        sendVerificationMail(user.email, user.name)
         res.send({code : 200, message : constants.success, data : {user, token}})
     }catch (error){
         next(error)

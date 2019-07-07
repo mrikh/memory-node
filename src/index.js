@@ -1,11 +1,11 @@
 const express = require('express')
-require('../db/mongoose')
-const userRouter = require('../routers/user')
-const errorHandler = require('../middleware/error')
-const constants = require('../utils/constants')
+require('./db/mongoose')
+const userRouter = require('./routers/user')
+const errorHandler = require('./middleware/error')
+const constants = require('./utils/constants')
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT
 
 app.use(express.json())
 //routers
