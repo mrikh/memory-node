@@ -3,6 +3,7 @@ const errorHandler = function (err, req, res, next) {
     if (err.name === 'ValidationError'){
         const errors = err.errors
         var errorMessage = []
+        console.log(errors)
         for (var key in errors){
             errorMessage.push(key + ' ' + errors[key].message)
         }
