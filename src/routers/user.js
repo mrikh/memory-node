@@ -74,8 +74,9 @@ router.post('/users/login', async (req, res, next) => {
             error.statusCode = 422
             throw error
         }
-
+        
         const user = await User.findOne({email : params.email})
+        console.log(user)
         const isMatch = await bcrypt.compare(params.password, user.password)
 
         if (isMatch){
