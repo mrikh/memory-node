@@ -49,6 +49,9 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
+    phoneNumber : {
+        type : String
+    },
     token : {
         type : String,
         required : true
@@ -56,6 +59,10 @@ const userSchema = new mongoose.Schema({
     emailVerified :{
         type : Boolean,
         default: false
+    },
+    phoneVerified:{
+        type : Boolean,
+        default : false
     },
     profilePhoto:{
         type : String,

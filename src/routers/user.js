@@ -18,6 +18,22 @@ router.post('/users/signUp', async (req, res, next) => {
     }
 })
 
+router.post('/users/resendVerification', async (req, res, next) => {
+    try{
+        const email = req.body.email
+        const user = await User.findOne({email})
+        
+        if (!user){
+            res.send({code : 404, message : constants.user_not_found})
+        }else{
+            sendVerificationMail(user.email, user.name)
+            res.send({code : 200, message : constants.success_signup, data : {user, token}})
+        }
+    }catch (error){
+        next(error)
+    }
+})
+
 router.get('/users/checkInfo', async (req, res, next) => {
 
     const username = req.query.username
@@ -60,7 +76,12 @@ router.patch('/users/update', auth, async (req, res, next) => {
             user[update] = req.body[update]
         })
         await user.save()
-        res.send({code : 200, message : constants.success, data : user})
+        if (user.emailVerified){
+            res.send({code : 200, message : constants.success_verified_email, data : user})
+        }else{
+            res.send({code : 203, message : constants.success_unverified_email, data : user})
+        }
+        
     }catch(error){
         next(error)
     }
@@ -81,7 +102,11 @@ router.post('/users/login', async (req, res, next) => {
 
         if (isMatch){
             const token = await user.generateAuthToken()
-            return res.send({code : 200, message : constants.success, data : {user, token}})
+            if (user.emailVerified){
+                return res.send({code : 200, message : constants.success, data : {user, token}})
+            }else{
+                return res.send({code : 203, message : constants.unverified_email})
+            }
         }else{
             const error = new Error(constants.params_missing)
             error.statusCode = 404
