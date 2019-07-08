@@ -93,7 +93,7 @@ router.post('/users/login', async (req, res, next) => {
     }
 })
 
-router.post('/users/forgotEmail', async (req, res, next) => {
+router.post('/users/forgotPass', async (req, res, next) => {
 
     try{
         const email = req.body.email
