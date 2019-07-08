@@ -79,7 +79,7 @@ router.patch('/users/update', auth, async (req, res, next) => {
         if (user.emailVerified){
             res.send({code : 200, message : constants.success_verified_email, data : user})
         }else{
-            res.send({code : 203, message : constants.success_unverified_email, data : user})
+            res.send({code : 203, message : constants.success_unverified_email})
         }
         
     }catch(error){
