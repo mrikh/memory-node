@@ -22,7 +22,7 @@ router.post('/users/resendVerification', async (req, res, next) => {
     try{
         const email = req.body.email
         const user = await User.findOne({email})
-        console.log(email)
+
         if (!user){
             res.send({code : 404, message : constants.user_not_found})
         }else{

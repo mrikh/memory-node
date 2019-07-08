@@ -12,7 +12,7 @@ const sendVerificationMail = (email, name) => {
 }
 
 const sendForgotMail = (email) => {
-    
+    console.log(process.env.SENDGRID_API_KEY)
     sgMail.send({
         to : email,
         from : 'mayankrikh@gmail.com',
