@@ -98,7 +98,7 @@ router.post('/users/login', async (req, res, next) => {
         }
         
         const user = await User.findOne({email : params.email})
-        console.log('da')
+        
         if (!user){
             const error = new Error(constants.user_not_found)
             error.statusCode = 404

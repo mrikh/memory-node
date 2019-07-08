@@ -6,7 +6,7 @@ module.exports = Object.freeze({
     forgot_success : 'You will shortly receive an email.',
     success_verified_email : 'You are all set! Have fun using the application!',
     success_unverified_email : 'You haven\'t verified your email address. Please login again after verification.',
-    unverified_email : 'You haven\'t verified your email address.'
+    unverified_email : 'You haven\'t verified your email address.',
 
     //general
     invalid_updates : 'Invalid Updates!',
