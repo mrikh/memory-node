@@ -1,8 +1,8 @@
 module.exports = Object.freeze({
 
     //Sign up
-    success_signup : 'Please verify your account via the email, otherwise it will be deleted after 24 hours. Please check your spam folder if you do not see it in your inbox.',
-    user_not_found : 'User not found',
+    success_signup : 'Please verify your account via the email you will receive shortly, otherwise your account will be deleted after 24 hours. Please check your spam folder if you do not see it in your inbox.',
+    user_not_found : 'User not found. Are you sure the details are correct?',
     forgot_success : 'You will shortly receive an email.',
     success_verified_email : 'You are all set! Have fun using the application!',
     success_unverified_email : 'You haven\'t verified your email address. Please login again after verification.',
