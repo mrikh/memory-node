@@ -3,6 +3,7 @@ const sgMail  = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 const sendVerificationMail = (email, name) => {
+    
     sgMail.send({
         to: email,
         from: 'mayankrikh@gmail.com',
@@ -12,7 +13,7 @@ const sendVerificationMail = (email, name) => {
 }
 
 const sendForgotMail = (email) => {
-    console.log(process.env.SENDGRID_API_KEY)
+    
     sgMail.send({
         to : email,
         from : 'mayankrikh@gmail.com',

@@ -9,7 +9,7 @@ const auth = async (req, res, next) => {
         const authValue = req.header('Authorization')
         if (!authValue){
             const error = new Error(constants.authenticate)
-            error.statusCode = 401
+            error.statusCode = 405
             throw error
         }
 
@@ -21,7 +21,7 @@ const auth = async (req, res, next) => {
 
         if (!user){
             const error = new Error(constants.user_not_found)
-            error.statusCode = 401
+            error.statusCode = 405
             throw error
         }
 

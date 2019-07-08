@@ -27,7 +27,7 @@ router.post('/users/resendVerification', async (req, res, next) => {
             res.send({code : 404, message : constants.user_not_found})
         }else{
             sendVerificationMail(user.email, user.name)
-            res.send({code : 200, message : constants.success_signup, data : {user, token}})
+            res.send({code : 200, message : constants.success_signup})
         }
     }catch (error){
         next(error)
