@@ -3,6 +3,7 @@ module.exports = Object.freeze({
     //Sign up
     success_signup : 'We have created your account. Please verify your account via the email you received to access some of the features. Please check your spam folder if you do not see it in your inbox.',
     user_not_found : 'User not found',
+    forgot_success : 'You will shortly receive an email.',
 
     //general
     invalid_updates : 'Invalid Updates!',

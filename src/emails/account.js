@@ -11,6 +11,16 @@ const sendVerificationMail = (email, name) => {
     })
 }
 
+const sendForgotMail = (email) => {
+    sgMail.send({
+        to : email,
+        from : 'mayankrikh@gmail.com',
+        subject: 'Forgot Password',
+        text : 'Click on the following link to reset your password.'
+    })
+}
+
 module.exports = {
-    sendVerificationMail
+    sendVerificationMail,
+    sendForgotMail
 }

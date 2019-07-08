@@ -1,7 +1,7 @@
 const express = require('express')
 const User = require('../models/user')
 const constants = require('../utils/constants')
-const {sendVerificationMail} = require('../emails/account')
+const {sendVerificationMail, sendForgotMail} = require('../emails/account')
 const auth = require('../middleware/auth')
 const bcrypt = require('bcrypt')
 
@@ -69,7 +69,7 @@ router.patch('/users/update', auth, async (req, res, next) => {
 router.post('/users/login', async (req, res, next) => {
     try{
         const params = req.body
-        console.log(params)
+        
         if (!params.email || !params.password){
             const error = new Error(constants.params_missing)
             error.statusCode = 422
@@ -89,6 +89,25 @@ router.post('/users/login', async (req, res, next) => {
         }
 
     }catch(error){
+        next(error)
+    }
+})
+
+router.post('/users/forgotEmail', async (req, res, next) => {
+
+    try{
+        const email = req.body.email
+        const user = await User.findOne({email : email})
+
+        if (!user){
+            const error = new Error(constants.user_not_found)    
+            error.statusCode = 404
+            throw error
+        }
+
+        sendForgotMail(user.mail)
+        res.send({code : 200, message : constants.forgot_success})
+    }catch (error){
         next(error)
     }
 })
