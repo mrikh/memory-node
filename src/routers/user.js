@@ -69,6 +69,7 @@ router.patch('/users/update', auth, async (req, res, next) => {
 router.post('/users/login', async (req, res, next) => {
     try{
         const params = req.body
+        console.log(params)
         if (!params.email || !params.password){
             const error = new Error(constants.params_missing)
             error.statusCode = 422
@@ -76,7 +77,6 @@ router.post('/users/login', async (req, res, next) => {
         }
         
         const user = await User.findOne({email : params.email})
-        console.log(user)
         const isMatch = await bcrypt.compare(params.password, user.password)
 
         if (isMatch){
