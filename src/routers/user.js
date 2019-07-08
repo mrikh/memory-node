@@ -105,7 +105,7 @@ router.post('/users/forgotPass', async (req, res, next) => {
             throw error
         }
 
-        sendForgotMail(user.mail)
+        sendForgotMail(email)
         res.send({code : 200, message : constants.forgot_success})
     }catch (error){
         next(error)

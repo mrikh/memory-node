@@ -12,6 +12,7 @@ const sendVerificationMail = (email, name) => {
 }
 
 const sendForgotMail = (email) => {
+    
     sgMail.send({
         to : email,
         from : 'mayankrikh@gmail.com',
