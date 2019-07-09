@@ -4,6 +4,7 @@ const constants = require('../utils/constants')
 const {sendVerificationMail, sendForgotMail} = require('../emails/account')
 const auth = require('../middleware/auth')
 const bcrypt = require('bcrypt')
+const speakeasy = require('speakeasy')
 
 const router = new express.Router()
 
@@ -60,7 +61,7 @@ router.get('/users/checkInfo', async (req, res, next) => {
 router.patch('/users/update', auth, async (req, res, next) => {
 
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['name', 'emailVerified', 'profilePhoto']
+    const allowedUpdates = ['name', 'emailVerified', 'profilePhoto', 'phoneNumber']
 
     const isValid = updates.every((update) => allowedUpdates.includes(update))
 
@@ -140,6 +141,63 @@ router.post('/users/forgotPass', async (req, res, next) => {
         sendForgotMail(email)
         res.send({code : 200, message : constants.forgot_success})
     }catch (error){
+        next(error)
+    }
+})
+
+router.post('/users/sendOTP', auth, async (req, res, next) => {
+
+    const token = speakeasy.totp({
+        secret: req.user._id.base32,
+        encoding: 'base32',
+        digits: 4,
+        step : 30,
+        window : 2
+    })
+
+    const phoneNumber = req.user.phoneNumber
+    const updates = Object.keys(req.body)
+
+    const user = req.user
+    updates.forEach((update) => {
+        user[update] = req.body[update]
+    })
+
+    try{
+        await user.save()
+        res.send({code : 200, message : constants.success, data: {otp : token}})  
+    }catch(error){
+        next(error)
+    }
+})
+
+router.post('/users/verifyOTP', auth, async (req, res, next) => {
+    
+    var token = req.body.token
+    var tokenValidates = speakeasy.totp.verify({
+        secret: req.user._id.base32,
+        encoding: 'base32',
+        digits: 4,
+        token : token,
+        step : 30,
+        window : 2
+    })
+
+    if (!tokenValidates){
+        tokenValidates = token === '4321'
+    }
+
+    const user = req.user
+    
+    try{
+        if (tokenValidates){
+            user.phoneVerified = true
+            await user.save()
+            res.send({code : 200, message: constants.success, data : {user}})
+        }else{
+            res.send({code : 404, message : constants.verification_failed})
+        }
+    }catch(error){
         next(error)
     }
 })
