@@ -152,7 +152,7 @@ router.post('/users/sendOTP', auth, async (req, res, next) => {
         encoding: 'base32',
         digits: 4,
         step : 30,
-        window : 2
+        window : 10
     })
 
     const phoneNumber = req.user.phoneNumber
@@ -180,7 +180,7 @@ router.post('/users/verifyOTP', auth, async (req, res, next) => {
         digits: 4,
         token : token,
         step : 30,
-        window : 2
+        window : 10
     })
 
     if (!tokenValidates){
