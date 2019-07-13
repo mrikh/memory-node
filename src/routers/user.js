@@ -193,7 +193,7 @@ router.post('/users/verifyOTP', auth, async (req, res, next) => {
         if (tokenValidates){
             user.phoneVerified = true
             await user.save()
-            res.send({code : 200, message: constants.success, data : {user}})
+            res.send({code : 200, message: constants.verification_success, data : {user}})
         }else{
             res.send({code : 404, message : constants.verification_failed})
         }
