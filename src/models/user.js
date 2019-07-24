@@ -67,7 +67,11 @@ const userSchema = new mongoose.Schema({
     profilePhoto:{
         type : String,
         default : ''
-    }
+    },
+    eventsAttending : [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Event'
+    }]
 },{
     timestamps : true
 })
@@ -90,6 +94,8 @@ userSchema.methods.toJSON = function() {
     delete userObject.token
     delete userObject.password
     delete userObject.__v
+    delete userObject.createdAt
+    delete userObject.updatedAt
     return userObject
 }
 
