@@ -2,10 +2,6 @@ const mongoose = require('mongoose')
 const constants = require('../utils/constants')
 
 const eventSchema = new mongoose.Schema({
-    eventStatus : {
-        type : Number,
-        required : [true, constants.params_missing]
-    },
     eventName : {
         type : String,
         required : [true, constants.params_missing]
@@ -26,8 +22,9 @@ const eventSchema = new mongoose.Schema({
         type : String,
         required : [true, constants.params_missing]
     },
-    nearby : {
-        type : String
+    additionalInfo : {
+        type : String,
+        default : ""
     },
     location : {
         type: {
@@ -44,7 +41,7 @@ const eventSchema = new mongoose.Schema({
     }],
     privacy : {
         type : Number,
-        required : [true, constants.params_missing]
+        required : [true, constants.params_missing],
     },
     invited : [{
         type : mongoose.Schema.Types.ObjectId,
@@ -55,7 +52,8 @@ const eventSchema = new mongoose.Schema({
         ref : 'User'
     }],
     otherDetails : {
-        type : String
+        type : String,
+        default : ""
     },
     creator : {
         type : mongoose.Schema.Types.ObjectId,
@@ -97,14 +95,15 @@ eventSchema.methods.toJSON = function() {
         })
     })
 
-    eventObject.lat = eventObject.location.coordinates[1]
-    eventObject.long = eventObject.location.coordinates[0]
+    if (eventObject.location){
+        eventObject.lat = eventObject.location.coordinates[1]
+        eventObject.long = eventObject.location.coordinates[0]
+    }
 
     eventObject.attendingCount = eventObject.attending.length
     
     delete eventObject.location
     delete eventObject.id
-    delete eventObject.attending
     delete eventObject.__v
     delete eventObject.createdAt
     delete eventObject.updatedAt

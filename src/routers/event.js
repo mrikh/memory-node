@@ -1,4 +1,5 @@
 const express = require('express')
+const ObjectId = require('mongodb').ObjectID;
 const Event = require('../models/event')
 const constants = require('../utils/constants')
 const auth = require('../middleware/auth')
@@ -26,6 +27,9 @@ router.post('/event/create', auth, async (req, res, next) => {
         }).populate({
             path : 'invited',
             options : { select : { _id : 1, name : 1, profilePhoto : 1 }} 
+        }).populate({
+            path : 'attending',
+            options : { select : { _id : 1, name : 1, profilePhoto : 1 }, limit : 3} 
         }).execPopulate()
 
         res.status(200).send({code : 200, message : constants.success, data : {event}})
@@ -35,13 +39,11 @@ router.post('/event/create', auth, async (req, res, next) => {
 })
 
 //only show public events/explore section
-//GET /event/list?lat=0.0&long=0.0&distance=1000&limit=10&skip=10&eventStatus=0
+//GET /event/list?lat=0.0&long=0.0&distance=1000&limit=10&skip=10&eventStatus=0&userId=""
 router.get('/event/list', async (req, res, next) => {
 
     try{
-
-        const results = await Event.find({
-            
+        var matchCondition = {
             location : {
                 $near : {
                     $maxDistance : req.query.distance,
@@ -51,15 +53,37 @@ router.get('/event/list', async (req, res, next) => {
                     }
                 }
             }, 
-            eventStatus : req.query.eventStatus,
             privacy : 1
-            
-        }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit)).populate({
-            path : 'creator',
-            options : { select : { _id : 1, name : 1, profilePhoto : 1 }}
+        }
+
+        if (req.query.status === 1){
+            matchCondition['endDate'] = {
+                $lte : new Date()
+            }
+        }else{
+            matchCondition['endDate'] = {
+                $gte : new Date()
+            }
+        }
+
+        if (req.query.userId){
+            matchCondition['creator'] = {
+                $ne : new ObjectId(req.query.userId)
+            }
+        }
+        
+        const results = await Event.find(matchCondition).select({'photos' : 1, '_id' : 1, 'eventName' : 1, 'startDate' : 1, 'addressTitle' : 1, 'addressDetail' : 1, 'invited' : 1}).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit)).populate({
+            path : 'attending',
+            options : { select : { _id : 1, name : 1, profilePhoto : 1 }, limit : 3} 
         })
 
-        res.status(200).send({code : 200, message : constants.success, data : results})
+        const events = results.map((event) => {
+            const temp = event.toJSON()
+            delete temp.invited
+            return temp
+        })
+        res.status(200).send({code : 200, message : constants.success, data : events})
+
     }catch (error) {
         next(error)
     }
