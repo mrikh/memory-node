@@ -19,7 +19,7 @@ const auth = async (req, res, next) => {
         //will search inside tokens array for token property
         const user = await User.findOne({_id : decoded._id, token})
 
-        if (!user){ h
+        if (!user){ 
             const error = new Error(constants.user_not_found)
             error.statusCode = 405
             throw error

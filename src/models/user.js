@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
+    distance : {
+        type : Number,
+        default : 1000
+    },
     phoneNumber : {
         type : String
     },
@@ -67,11 +71,7 @@ const userSchema = new mongoose.Schema({
     profilePhoto:{
         type : String,
         default : ''
-    },
-    eventsAttending : [{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'Event'
-    }]
+    }
 },{
     timestamps : true
 })

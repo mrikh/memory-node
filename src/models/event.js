@@ -29,13 +29,15 @@ const eventSchema = new mongoose.Schema({
     nearby : {
         type : String
     },
-    lat : {
-        type : Number,
-        required : [true, constants.params_missing]
-    },
-    long : {
-        type : Number,
-        required : [true, constants.params_missing]
+    location : {
+        type: {
+            type : String,
+            required : [true, constants.params_missing]
+        },
+        coordinates : {
+            type : [Number],
+            required : [true, constants.params_missing]
+        }
     },
     photos : [{
         type : String
@@ -45,6 +47,10 @@ const eventSchema = new mongoose.Schema({
         required : [true, constants.params_missing]
     },
     invited : [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'User'
+    }],
+    attending : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User'
     }],
@@ -60,7 +66,9 @@ const eventSchema = new mongoose.Schema({
     timestamps : true
 })
 
-eventSchema.methods.generateStructure = async function (){
+eventSchema.index( { location: '2dsphere' } )
+
+eventSchema.methods.multiplePopulate = async function (){
 
     try{
         await this.populate({
@@ -68,8 +76,8 @@ eventSchema.methods.generateStructure = async function (){
             options : { select : { _id : 1, name : 1, profilePhoto : 1 }}
         }).populate({
             path : 'invited',
-            options : { select : { _id : 1, name : 1, profilePhoto : 1, eventsAttending : 1 }} 
-        }).execPopulate()
+            options : { select : { _id : 1, name : 1, profilePhoto : 1 }} 
+        })
 
         return this
 
@@ -82,10 +90,25 @@ eventSchema.methods.generateStructure = async function (){
 eventSchema.methods.toJSON = function() {
 
     const eventObject = this.toObject()
+
+    eventObject.invited.forEach((user) => {
+        user.isAttending = eventObject.attending.some((id) => {
+            return id.equals(user._id)
+        })
+    })
+
+    eventObject.lat = eventObject.location.coordinates[1]
+    eventObject.long = eventObject.location.coordinates[0]
+
+    eventObject.attendingCount = eventObject.attending.length
+    
+    delete eventObject.location
     delete eventObject.id
+    delete eventObject.attending
     delete eventObject.__v
     delete eventObject.createdAt
     delete eventObject.updatedAt
+
     return eventObject
 }
 

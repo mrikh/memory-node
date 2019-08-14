@@ -8,18 +8,109 @@ const router = new express.Router()
 
 router.post('/event/create', auth, async (req, res, next) => {
 
-    try{
-        var params = req.body
-        params.creator = req.user._id
-        //as event is craeted now only
-        params.eventStatus = 0
+    var params = req.body
+    params.creator = req.user._id
+    //as event is craeted now only
+    params.eventStatus = 0
+    params.location = {
+        type : 'Point',
+        coordinates : [params.long, params.lat]
+    }
 
+    try{
         const event = new Event(params)
         await event.save()
-        await event.generateStructure()
+        await event.populate({
+            path : 'creator',
+            options : { select : { _id : 1, name : 1, profilePhoto : 1 }}
+        }).populate({
+            path : 'invited',
+            options : { select : { _id : 1, name : 1, profilePhoto : 1 }} 
+        }).execPopulate()
 
         res.status(200).send({code : 200, message : constants.success, data : {event}})
     }catch (error){
+        next(error)
+    }
+})
+
+//only show public events/explore section
+//GET /event/list?lat=0.0&long=0.0&distance=1000&limit=10&skip=10&eventStatus=0
+router.get('/event/list', async (req, res, next) => {
+
+    try{
+
+        const results = await Event.find({
+            
+            location : {
+                $near : {
+                    $maxDistance : req.query.distance,
+                    $geometry : {
+                        type : 'Point',
+                        coordinates : [req.query.long, req.query.lat]
+                    }
+                }
+            }, 
+            eventStatus : req.query.eventStatus,
+            privacy : 1
+            
+        }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit)).populate({
+            path : 'creator',
+            options : { select : { _id : 1, name : 1, profilePhoto : 1 }}
+        })
+
+        res.status(200).send({code : 200, message : constants.success, data : results})
+    }catch (error) {
+        next(error)
+    }
+})
+
+//these are events that the user has marked as attending
+
+//GET /event/userList?limit=10&skip=10&eventStatus=0
+router.get('/event/userList', auth, async (req, res, next) => {
+
+    try{
+        const results = await Event.find({
+
+            //attending events mein dhoondo
+            //sort by event start date 
+
+        }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit)).populate({
+            path : 'creator',
+            options : { select : { _id : 1, name : 1, profilePhoto : 1 }}
+        })
+
+        res.status(200).send({code : 200, message : constants.success, data : results})
+    }catch (error) {
+        next(error)
+    }
+})
+
+//events user is invited to
+//GET /event/invitedEvents?limit=10&skip=10
+router.get('/event/invitedEvents', auth, async (req, res, next) => {
+
+    try{
+
+        if (!req.user._id){
+            const error = new Error()
+            error.statusCode = 404
+            throw error
+        }
+
+        const results = await Event.find({
+
+            //invited events mein dhoondo
+            //sort by event start date 
+
+        }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit)).populate({
+            path : 'creator',
+            options : { select : { _id : 1, name : 1, profilePhoto : 1 }}
+        })
+
+        res.status(200).send({code : 200, message : constants.success, data : results})
+    }catch (error) {
         next(error)
     }
 })
