@@ -32,7 +32,7 @@ router.post('/event/create', auth, async (req, res, next) => {
             options : { select : { _id : 1, name : 1, profilePhoto : 1 }, limit : 3} 
         }).execPopulate()
 
-        res.status(200).send({code : 200, message : constants.success, data : {event}})
+        res.status(200).send({code : 200, message : constants.success, data : event})
     }catch (error){
         next(error)
     }
