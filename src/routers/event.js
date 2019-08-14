@@ -79,6 +79,13 @@ router.get('/event/list', async (req, res, next) => {
 
         const events = results.map((event) => {
             const temp = event.toJSON()
+            if (req.query.userId){
+                temp.isAttending = eventObject.attending.some((id) => {
+                    return id.equals(user._id)
+                })
+            }else{
+                temp.isAttending = false
+            }
             delete temp.invited
             return temp
         })
