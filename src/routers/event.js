@@ -47,7 +47,6 @@ router.get('/event/list', async (req, res, next) => {
             location : {
                 $near : {
                     $maxDistance : req.query.distance * 1000,
-                    $spherical : true,
                     $geometry : {
                         type : 'Point',
                         coordinates : [req.query.long, req.query.lat]
