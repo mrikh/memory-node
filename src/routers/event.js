@@ -39,6 +39,7 @@ router.post('/event/create', auth, async (req, res, next) => {
 })
 
 //only show public events/explore section
+//event status is upcoming or past events
 //GET /event/list?lat=0.0&long=0.0&distance=1000&limit=10&skip=10&eventStatus=0&userId=""
 router.get('/event/list', async (req, res, next) => {
 
@@ -76,19 +77,21 @@ router.get('/event/list', async (req, res, next) => {
             path : 'attending',
             options : { select : { _id : 1, name : 1, profilePhoto : 1 }, limit : 3} 
         })
-        
+
         const events = results.map((event) => {
             const temp = event.toJSON()
             if (req.query.userId){
                 temp.isAttending = event.attending.some((id) => {
-                    return id.equals(user._id)
+                    return id.equals(req.query.userId)
                 })
             }else{
                 temp.isAttending = false
             }
+
             delete temp.invited
             return temp
         })
+
         res.status(200).send({code : 200, message : constants.success, data : events})
 
     }catch (error) {

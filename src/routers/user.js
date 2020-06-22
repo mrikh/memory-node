@@ -5,6 +5,7 @@ const {sendVerificationMail, sendForgotMail} = require('../emails/account')
 const auth = require('../middleware/auth')
 const bcrypt = require('bcrypt')
 const speakeasy = require('speakeasy')
+const otpHandler = require('../utils/otp')
 
 const router = new express.Router()
 
@@ -12,23 +13,48 @@ router.post('/users/signUp', async (req, res, next) => {
     try{
         const user = new User(req.body)
         const token = await user.generateAuthToken()
-        sendVerificationMail(user.email, user.name)
+        sendVerificationMail(user)
         res.send({code : 200, message : constants.success_signup, data : {user, token}})
     }catch (error){
         next(error)
     }
 })
 
-router.post('/users/resendVerification', async (req, res, next) => {
+router.post('/users/resendVerification', auth, async (req, res, next) => {
     try{
-        const email = req.body.email
-        const user = await User.findOne({email})
+        const user = req.user
+        if (!user){
+            res.send({code : 404, message : constants.user_not_found})
+        }else{
+            sendVerificationMail(user)
+            res.send({code : 200, message : constants.success_signup})
+        }
+    }catch (error){
+        next(error)
+    }
+})
+
+router.post('/users/verifyEmail', auth, async (req, res, next) => {
+    try{
+        const user = req.user
 
         if (!user){
             res.send({code : 404, message : constants.user_not_found})
         }else{
-            sendVerificationMail(user.email, user.name)
-            res.send({code : 200, message : constants.success_signup})
+    
+            const tokenValidates = otpHandler.verifyOtp(user, req.body.otp)
+
+            try{
+                if (tokenValidates){
+                    user.emailVerified = true
+                    await user.save()
+                    res.send({code : 200, message: constants.verification_success, data : {user}})
+                }else{
+                    res.send({code : 404, message : constants.verification_failed})
+                }
+            }catch(error){
+                next(error)
+            }
         }
     }catch (error){
         next(error)
@@ -110,11 +136,7 @@ router.post('/users/login', async (req, res, next) => {
 
         if (isMatch){
             const token = await user.generateAuthToken()
-            if (user.emailVerified){
-                return res.send({code : 200, message : constants.success, data : {user, token}})
-            }else{
-                return res.send({code : 203, message : constants.unverified_email})
-            }
+            return res.send({code : 200, message : constants.success, data : {user, token}})
         }else{
             const error = new Error(constants.params_missing)
             error.statusCode = 404
@@ -147,24 +169,10 @@ router.post('/users/forgotPass', async (req, res, next) => {
 
 router.post('/users/sendOTP', auth, async (req, res, next) => {
 
-    const token = speakeasy.totp({
-        secret: req.user._id.base32,
-        encoding: 'base32',
-        digits: 4,
-        step : 30,
-        window : 10
-    })
-
-    const phoneNumber = req.user.phoneNumber
-    const updates = Object.keys(req.body)
-
-    const user = req.user
-    updates.forEach((update) => {
-        user[update] = req.body[update]
-    })
+    const token = otpHandler.generateOtp(req.user)
+    const phoneNumber = req.body.phoneNumber
 
     try{
-        await user.save()
         res.send({code : 200, message : constants.success, data: {otp : token}})  
     }catch(error){
         next(error)
@@ -173,20 +181,7 @@ router.post('/users/sendOTP', auth, async (req, res, next) => {
 
 router.post('/users/verifyOTP', auth, async (req, res, next) => {
     
-    var token = req.body.token
-    var tokenValidates = speakeasy.totp.verify({
-        secret: req.user._id.base32,
-        encoding: 'base32',
-        digits: 4,
-        token : token,
-        step : 30,
-        window : 10
-    })
-
-    if (!tokenValidates){
-        tokenValidates = token === '4321'
-    }
-
+    const tokenValidates = otpHandler.tokenValidates(req.user, req.body.token)
     const user = req.user
     
     try{

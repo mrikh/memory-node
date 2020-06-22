@@ -1,14 +1,17 @@
 const sgMail  = require('@sendgrid/mail')
+const otpHandler = require('../utils/otp')
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
-const sendVerificationMail = (email, name) => {
+const sendVerificationMail = (user) => {
+
+    const token = otpHandler.generateOtp(user)
     
     sgMail.send({
-        to: email,
+        to: user.email,
         from: 'mayankrikh@gmail.com',
         subject : 'Welcome!',
-        text : `Welcome ${name}. Please click the button to verify your account.`
+        text : `Welcome ${user.name}. Please enter ${token} to verify your account.`
     })
 }
 
@@ -18,7 +21,7 @@ const sendForgotMail = (email) => {
         to : email,
         from : 'mayankrikh@gmail.com',
         subject: 'Forgot Password',
-        text : 'Click on the following link to reset your password.'
+        text : 'Click on the following link to reset your password'
     })
 }
 
