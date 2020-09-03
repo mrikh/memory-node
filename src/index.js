@@ -15,9 +15,6 @@ app.use(userRouter)
 
 //extra end points if hit
 app.use('*', (req, res, next) => {
-    console.log(req)
-    console.log(res)
-
     const error = new Error(constants.url_not_exist)
     error.statusCode = 404
     next(error)
@@ -25,6 +22,9 @@ app.use('*', (req, res, next) => {
 
 //error handler middleware
 app.use(errorHandler)
+
+var ip = require("ip");
+console.dir ( ip.address() );
 
 app.listen(port, () => {
     

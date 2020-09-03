@@ -181,7 +181,7 @@ router.post('/users/sendOTP', auth, async (req, res, next) => {
 
 router.post('/users/verifyOTP', auth, async (req, res, next) => {
     
-    const tokenValidates = otpHandler.tokenValidates(req.user, req.body.token)
+    const tokenValidates = otpHandler.verifyOtp(req.user, req.body.token)
     const user = req.user
     
     try{
